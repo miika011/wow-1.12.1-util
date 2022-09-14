@@ -13,7 +13,7 @@ SlashCmdList["RELOAD"] = function() ReloadUI() end;
 
 oldTostring = tostring;
 
-local function stripSpellRank(spellName)
+function stripSpellRank(spellName)
     return string.gsub(spellName, SPELL_RANK_PATTERN, "");
 end
 
@@ -44,8 +44,15 @@ function GetSpellID(spellName)
 end
 
 function SpellIsOnCooldown(spellName)
-    return GetSpellCooldown(GetSpellID(spellName), "spell") ~= 0;
+    local start, duration, enabled = GetSpellCooldown(GetSpellID(spellName), "spell");
+    return start ~= 0;
 end
+
+function SpellIsEnabled(spellName)
+    local start, duration, enabled = GetSpellCooldown(GetSpellID(spellName), "spell");
+    return enabled == 0; --enabled = 0 actually means spell is enabled. Fucked up.
+end
+
 function tableTostring(tbl, indent)
 	local ILENGTH = 4;
     local ICHAR = " "
@@ -92,19 +99,9 @@ string.strip = function(str)
     return string.gsub(str,"^%s*(%S+.*%S*)%s*", "%1")
 end
 
-local schedulerFrame = CreateFrame("Frame");
-local lastRun = GetTime();
-function foo()
-    local now = GetTime();
-    if now - lastRun > 1.0 then
-        lastRun = now;
-        print("kakka");
+table.has = function(tbl, element)
+    for i, e in tbl do
+        if e == element then return true end;
     end
+    return false;
 end
---schedulerFrame:SetScript("OnUpdate", foo);
-
-Scheduler = {
-    schedule = function(task) 
-    
-    end
-};

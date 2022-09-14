@@ -1,5 +1,8 @@
-local MIN_CAST_INTERVAL_SECONDS = 0.1;
-local sequenceLastCast = GetTime(); --Need to limit how quickly doCast(...) is run again
+
+
+local noGlobalCooldown = {
+    "Presence of Mind"
+}
 
 local Sequences = {
     
@@ -9,11 +12,13 @@ local Sequences = {
             sequence.index = 1;
         end
         local spellToCast = sequence.spellSequence[sequence.index];
-        local now = GetTime();
-        if now - sequenceLastCast >= MIN_CAST_INTERVAL_SECONDS and not SpellIsOnCooldown(spellToCast) then
-            sequenceLastCast = now;
-            CastSpellByName(sequence.spellSequence[sequence.index]);
-            sequence.index = sequence.index + 1;
+        if not SpellIsOnCooldown(spellToCast) then
+            CastSpellByName(spellToCast);
+            print("Is active: " .. tostring(SpellIsEnabled(spellToCast)));
+            if SpellIsOnCooldown(spellToCast) or 
+               table.has(noGlobalCooldown, stripSpellRank(spellToCast)) then
+                sequence.index = sequence.index + 1;
+            end
         else
             print(spellToCast .. " is on cooldown.");
         end
